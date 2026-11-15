@@ -87,7 +87,7 @@ export default function EmptySeedWords() {
                         direction="column"
                         alignItems="center"
                         justifyContent="space-between"
-                        style={{ width: 400, height: 120 }}
+                        style={{ width: 'min(400px, calc(100vw - 48px))', height: 120 }}
                     >
                         <Typography variant="h3">{t('confirm-import-wallet')}</Typography>
                         <Typography variant="p" style={{ whiteSpace: 'pre', textAlign: 'center' }}>

@@ -84,7 +84,12 @@ export default function ResetSettingsDialog({ isOpen, onOpenChange }: ResetSetti
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange} disableClose={isPending || error !== undefined}>
             <DialogContent ref={dialogRef} data-testid="settings-reset-dialog">
-                <Stack alignItems="center" justifyContent="space-between" gap={8} style={{ width: 570, padding: 8 }}>
+                <Stack
+                    alignItems="center"
+                    justifyContent="space-between"
+                    gap={8}
+                    style={{ width: 'min(570px, calc(100vw - 48px))', padding: 8 }}
+                >
                     <Typography variant="h3">{t('reset-settings')}</Typography>
                     <Typography variant="p">{t('reset-restart')}</Typography>
                     <OptionContainer>

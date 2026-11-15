@@ -13,6 +13,10 @@ export const ConnectionsSettings = () => {
     const nodeType = useNodeStore((s) => s.node_type);
     const isRemote = nodeType == 'Remote';
 
+    if (IS_TU_LITE) {
+        return <LiteNodeConfiguration />;
+    }
+
     const nonRemoteMarkup = (
         <Activity mode={isRemote ? 'hidden' : 'visible'}>
             <LocalNodeSync />
@@ -23,7 +27,7 @@ export const ConnectionsSettings = () => {
     return (
         <>
             {nonRemoteMarkup}
-            {IS_TU_LITE ? <LiteNodeConfiguration /> : <NodeTypeConfiguration />}
+            <NodeTypeConfiguration />
             <Node />
             <Network />
             <Peers />

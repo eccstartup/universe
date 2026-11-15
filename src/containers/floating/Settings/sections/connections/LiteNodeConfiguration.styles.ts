@@ -10,6 +10,33 @@ export const ActiveNode = styled.div`
     background-color: ${({ theme }) => theme.palette.background.default};
 `;
 
+export const ActiveNodeHeader = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+`;
+
+export const ConnectionState = styled.span<{ $connected: boolean }>`
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    color: ${({ theme, $connected }) => ($connected ? theme.palette.success.main : theme.palette.text.secondary)};
+
+    &:before {
+        content: '';
+        width: 7px;
+        height: 7px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background-color: ${({ theme, $connected }) =>
+            $connected ? theme.palette.success.main : theme.palette.text.secondary};
+    }
+`;
+
 export const ActiveNodeLabel = styled.span`
     display: flex;
     align-items: center;

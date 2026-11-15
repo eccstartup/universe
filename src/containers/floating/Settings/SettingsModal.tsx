@@ -28,6 +28,8 @@ import { Container, ContentContainer, EndContainer, HeaderContainer, SectionWrap
 import { setIsSettingsOpen } from '@app/store';
 import VersionChip from '@app/containers/navigation/components/VersionChip/VersionChip.tsx';
 import { PoolsSettings } from './sections/pools/PoolsSettings.tsx';
+import { IS_TU_LITE } from '@app/config/variant.ts';
+import LiteSettingsModal from './LiteSettingsModal.tsx';
 
 const SettingsModal = memo(function SettingsModal() {
     const { t } = useTranslation(['settings'], { useSuspense: false });
@@ -64,22 +66,26 @@ const SettingsModal = memo(function SettingsModal() {
     return (
         <Dialog open={isSettingsOpen} onOpenChange={onOpenChange}>
             <DialogContent $unPadded>
-                <Container>
-                    <SettingsNavigation activeSection={currentSection} onChangeActiveSection={setActiveSection} />
-                    <ContentContainer>
-                        <HeaderContainer>
-                            <Typography variant="h4">{title}</Typography>
-                            <EndContainer>
-                                <VersionChip />
-                                <IconButton onClick={() => onOpenChange()}>
-                                    <IoClose size={18} />
-                                </IconButton>
-                            </EndContainer>
-                        </HeaderContainer>
+                {IS_TU_LITE ? (
+                    <LiteSettingsModal onClose={onOpenChange} />
+                ) : (
+                    <Container>
+                        <SettingsNavigation activeSection={currentSection} onChangeActiveSection={setActiveSection} />
+                        <ContentContainer>
+                            <HeaderContainer>
+                                <Typography variant="h4">{title}</Typography>
+                                <EndContainer>
+                                    <VersionChip />
+                                    <IconButton onClick={() => onOpenChange()}>
+                                        <IoClose size={18} />
+                                    </IconButton>
+                                </EndContainer>
+                            </HeaderContainer>
 
-                        <SectionWrapper key={currentSection}>{sectionMarkup}</SectionWrapper>
-                    </ContentContainer>
-                </Container>
+                            <SectionWrapper key={currentSection}>{sectionMarkup}</SectionWrapper>
+                        </ContentContainer>
+                    </Container>
+                )}
                 <RestartDialog />
                 <ConfirnNodeDataLocationModal />
             </DialogContent>

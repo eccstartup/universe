@@ -11,6 +11,7 @@ import {
     setRemoteBaseNodeAddress,
 } from '@app/store/actions/config/core.ts';
 import { useConfigCoreStore } from '@app/store/stores/config/useConfigCoreStore.ts';
+import { useNodeStore } from '@app/store/useNodeStore.ts';
 import {
     SettingsGroup,
     SettingsGroupContent,
@@ -20,8 +21,10 @@ import {
 import {
     ActiveNode,
     ActiveNodeAddress,
+    ActiveNodeHeader,
     ActiveNodeLabel,
     AddRow,
+    ConnectionState,
     EmptyHint,
     ErrorMessage,
     NodeAddress,
@@ -39,6 +42,7 @@ export default function LiteNodeConfiguration() {
     const { t } = useTranslation(['settings'], { useSuspense: false });
     const activeAddress = useConfigCoreStore((s) => s.remote_base_node_address || '');
     const savedAddresses = useConfigCoreStore((s) => s.custom_remote_node_addresses || []);
+    const isConnected = useNodeStore((s) => s.isNodeConnected);
     const [addressInput, setAddressInput] = useState('');
     const [isAdding, setIsAdding] = useState(false);
     const [busyAddress, setBusyAddress] = useState<string | null>(null);
@@ -105,7 +109,12 @@ export default function LiteNodeConfiguration() {
             </SettingsGroup>
 
             <ActiveNode>
-                <ActiveNodeLabel>{t('lite-node-current')}</ActiveNodeLabel>
+                <ActiveNodeHeader>
+                    <ActiveNodeLabel>{t('lite-node-current')}</ActiveNodeLabel>
+                    <ConnectionState $connected={isConnected} data-testid="lite-node-status">
+                        {t(isConnected ? 'lite-node-connected' : 'lite-node-disconnected')}
+                    </ConnectionState>
+                </ActiveNodeHeader>
                 <ActiveNodeAddress>{activeAddress || '-'}</ActiveNodeAddress>
             </ActiveNode>
 

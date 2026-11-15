@@ -1,6 +1,10 @@
 import styled, { css } from 'styled-components';
 
-export const SettingsGroupWrapper = styled.div<{ $advanced?: boolean; $subGroup?: boolean }>`
+export const SettingsGroupWrapper = styled.div<{
+    $advanced?: boolean;
+    $subGroup?: boolean;
+    $advancedLabel?: string;
+}>`
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -11,12 +15,21 @@ export const SettingsGroupWrapper = styled.div<{ $advanced?: boolean; $subGroup?
     position: relative;
     margin-top: ${({ $subGroup }) => ($subGroup ? '-5px' : '0')};
 
-    ${({ $advanced }) =>
+    @media (max-width: 480px) {
+        padding: ${({ $subGroup }) => ($subGroup ? '0 0 14px 0' : '14px 0')};
+        gap: 8px;
+    }
+
+    ${({ $advanced, $advancedLabel }) =>
         $advanced &&
         css`
             margin-top: 20px;
+            @media (max-width: 480px) {
+                margin-top: 16px;
+            }
+
             &:before {
-                content: 'Advanced';
+                content: ${JSON.stringify($advancedLabel ?? 'Advanced')};
                 position: absolute;
                 background-color: ${({ theme }) => theme.palette.background.paper};
                 top: -9px;
@@ -39,6 +52,11 @@ export const SettingsGroup = styled.div`
     gap: 6px;
     position: relative;
     color: ${({ theme }) => theme.palette.text.secondary};
+
+    @media (max-width: 480px) {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
 
     ol,
     ul {
@@ -70,4 +88,8 @@ export const SettingsGroupAction = styled.div`
     display: flex;
     font-size: 12px;
     gap: 6px;
+
+    @media (max-width: 480px) {
+        flex-wrap: wrap;
+    }
 `;

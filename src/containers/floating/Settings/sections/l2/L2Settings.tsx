@@ -19,6 +19,7 @@ import LoadingDots from '@app/components/elements/loaders/LoadingDots.tsx';
 import SeedWords from '@app/components/wallet/seedwords/SeedWords.tsx';
 import { resetL2ToL1Seed } from '@app/store/actions/l2WalletStoreActions.ts';
 import { setOotleIndexerUrl } from '@app/store/actions/config/core.ts';
+import { IS_TU_LITE } from '@app/config/variant.ts';
 import { CopyToClipboard } from '../wallet/WalletAddressMarkup/WalletAddressMarkup.tsx';
 import { CTASArea, InputArea, WalletSettingsGrid } from '../wallet/styles.ts';
 import {
@@ -227,29 +228,31 @@ export const L2Settings = () => {
     return (
         <>
             {status && <SettingsGroupWrapper>{status}</SettingsGroupWrapper>}
-            <SettingsGroupWrapper>
-                <SettingsGroup>
-                    <SettingsGroupContent>
-                        <SettingsGroupTitle>
-                            <Typography variant="h6">{t('l2.side-by-side')}</Typography>
-                        </SettingsGroupTitle>
-                        <Typography>{t('l2.side-by-side-description')}</Typography>
-                    </SettingsGroupContent>
-                    <SettingsGroupAction>
-                        <ToggleSwitch
-                            data-testid="l2-settings-side-by-side"
-                            checked={sideBySide}
-                            onChange={({ target }) =>
-                                setL2SideBySide(target.checked).then(() => {
-                                    // Turning it off with both cards open leaves the L1 card; a failed
-                                    // write rolls the setting back, so read it rather than the click.
-                                    if (!useConfigUIStore.getState().l2_side_by_side) setL2Open(false);
-                                })
-                            }
-                        />
-                    </SettingsGroupAction>
-                </SettingsGroup>
-            </SettingsGroupWrapper>
+            {!IS_TU_LITE && (
+                <SettingsGroupWrapper>
+                    <SettingsGroup>
+                        <SettingsGroupContent>
+                            <SettingsGroupTitle>
+                                <Typography variant="h6">{t('l2.side-by-side')}</Typography>
+                            </SettingsGroupTitle>
+                            <Typography>{t('l2.side-by-side-description')}</Typography>
+                        </SettingsGroupContent>
+                        <SettingsGroupAction>
+                            <ToggleSwitch
+                                data-testid="l2-settings-side-by-side"
+                                checked={sideBySide}
+                                onChange={({ target }) =>
+                                    setL2SideBySide(target.checked).then(() => {
+                                        // Turning it off with both cards open leaves the L1 card; a failed
+                                        // write rolls the setting back, so read it rather than the click.
+                                        if (!useConfigUIStore.getState().l2_side_by_side) setL2Open(false);
+                                    })
+                                }
+                            />
+                        </SettingsGroupAction>
+                    </SettingsGroup>
+                </SettingsGroupWrapper>
+            )}
             {hasPin && enabled && account && (
                 <>
                     <SettingsGroupWrapper data-testid="l2-settings-account">
@@ -276,7 +279,7 @@ export const L2Settings = () => {
                     </SettingsGroupWrapper>
                 </>
             )}
-            <IndexerField />
+            {!IS_TU_LITE && <IndexerField />}
             {/* An import or reset turns L2 off while the wallet phase restarts, so keep the section up while it runs. */}
             {hasPin && ((enabled && !locked) || seedChangePending) && (
                 <SettingsGroupWrapper data-testid="l2-settings-seed-words">
@@ -311,7 +314,7 @@ export const L2Settings = () => {
                         direction="column"
                         alignItems="center"
                         justifyContent="space-between"
-                        style={{ width: 400, height: 120 }}
+                        style={{ width: 'min(400px, calc(100vw - 48px))', height: 120 }}
                     >
                         <Typography variant="h3">{t('l2.use-l1-seed')}</Typography>
                         <Typography variant="p" style={{ whiteSpace: 'pre', textAlign: 'center' }}>

@@ -190,7 +190,7 @@ export default function SeedWords({ isMonero = false, isL2 = false }: SeedWordsP
                         direction="column"
                         alignItems="center"
                         justifyContent="space-between"
-                        style={{ width: 400, height: 120 }}
+                        style={{ width: 'min(400px, calc(100vw - 48px))', height: 120 }}
                     >
                         <Typography variant="h3">{t(isL2 ? 'l2.confirm-import' : 'confirm-import-wallet')}</Typography>
                         <Typography variant="p" style={{ whiteSpace: 'pre', textAlign: 'center' }}>
