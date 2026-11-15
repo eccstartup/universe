@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { LITE_TAPPLET_BAR_HEIGHT } from '../styles.ts';
 
 export const MiningViewContainer = styled.div`
     display: flex;
@@ -10,16 +11,17 @@ export const MiningViewContainer = styled.div`
     overflow: hidden;
 `;
 
-export const TappletContainer = styled.div`
+export const TappletContainer = styled.div<{ $lite?: boolean }>`
     pointer-events: all;
     position: fixed;
-    top: 0;
+    top: ${({ $lite }) => ($lite ? `${LITE_TAPPLET_BAR_HEIGHT}px` : '0')};
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: ${({ $lite }) => ($lite ? `calc(100vh - ${LITE_TAPPLET_BAR_HEIGHT}px)` : '100vh')};
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     z-index: 2;
+    background: ${({ theme }) => theme.palette.background.default};
 `;

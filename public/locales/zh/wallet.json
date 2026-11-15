@@ -2,6 +2,7 @@
   "all-activity": "所有活动",
   "lite-title": "TU Lite",
   "lite-network": "主网",
+  "lite-bridge-title": "wXTM 跨链桥",
   "confirmation-message": "您的交易已提交！\n在挖掘几个区块后，它将显示在您的历史记录中。",
   "details": {
     "amount": "金额",

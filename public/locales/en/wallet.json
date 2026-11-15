@@ -2,6 +2,7 @@
   "all-activity": "All activity",
   "lite-title": "TU Lite",
   "lite-network": "Mainnet",
+  "lite-bridge-title": "wXTM Bridge",
   "confirmation-message": "Your transaction has been submitted!\nIt will show up in your history after mining a few blocks.",
   "details": {
     "amount": "Amount",

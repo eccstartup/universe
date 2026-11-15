@@ -1,8 +1,10 @@
-import { IoClose } from 'react-icons/io5';
+import { useTranslation } from 'react-i18next';
+import { IoArrowBack } from 'react-icons/io5';
 
 import { useMiningStatesSync } from '@app/hooks/mining/useMiningStatesSync.ts';
 import DisconnectWrapper from '../Reconnect/DisconnectWrapper.tsx';
-import { DashboardContentContainer, LiteTappletClose } from './styles';
+import { DashboardContentContainer, LiteTappletBar, LiteTappletBarSide, LiteTappletBarTitle } from './styles';
+import { IconButton } from '@app/components/elements/buttons/IconButton.tsx';
 import { useAirdropStore, useUIStore } from '@app/store';
 import { setShowTapplet } from '@app/store/actions/uiStoreActions.ts';
 import { useTappletsStore } from '@app/store/useTappletsStore';
@@ -19,6 +21,7 @@ function MiningDashboard() {
 }
 
 export default function Dashboard() {
+    const { t } = useTranslation(['wallet', 'common'], { useSuspense: false });
     const showTapplet = useUIStore((s) => s.showTapplet);
     const activeTapplet = useTappletsStore((s) => s.activeTapplet);
 
@@ -30,7 +33,7 @@ export default function Dashboard() {
 
     const tappletMarkup = (
         <Activity mode={showTapplet ? 'visible' : 'hidden'} key="tapplet">
-            {renderTapplet ? <Tapplet source={activeTapplet.source} /> : null}
+            {renderTapplet ? <Tapplet source={activeTapplet.source} lite={IS_TU_LITE} /> : null}
         </Activity>
     );
     const mainMarkup = (
@@ -43,15 +46,20 @@ export default function Dashboard() {
             {connectionStatus !== 'connected' && !orphanChainUiDisabled ? <DisconnectWrapper /> : null}
             {mainMarkup}
             {tappletMarkup}
-            {IS_TU_LITE && showTapplet ? (
-                <LiteTappletClose
-                    type="button"
-                    aria-label="Close"
-                    onClick={() => setShowTapplet(false)}
-                    data-testid="lite-tapplet-close"
-                >
-                    <IoClose size={20} />
-                </LiteTappletClose>
+            {IS_TU_LITE && renderTapplet ? (
+                <LiteTappletBar>
+                    <IconButton
+                        size="medium"
+                        aria-label={t('close', { ns: 'common' })}
+                        title={t('close', { ns: 'common' })}
+                        onClick={() => setShowTapplet(false)}
+                        data-testid="lite-tapplet-close"
+                    >
+                        <IoArrowBack size={18} />
+                    </IconButton>
+                    <LiteTappletBarTitle>{t('lite-bridge-title')}</LiteTappletBarTitle>
+                    <LiteTappletBarSide />
+                </LiteTappletBar>
             ) : null}
         </DashboardContentContainer>
     );

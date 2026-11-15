@@ -8,9 +8,10 @@ import { getIframeOrigin } from '@app/utils/iframeOrigin.ts';
 
 interface TappletProps {
     source: string;
+    lite?: boolean;
 }
 
-export const Tapplet = ({ source }: TappletProps) => {
+export const Tapplet = ({ source, lite }: TappletProps) => {
     const tappletRef = useRef<HTMLIFrameElement | null>(null);
     const untrustedMessageWarned = useRef(false);
     const appLanguage = useConfigUIStore((s) => s.application_language);
@@ -105,7 +106,7 @@ export const Tapplet = ({ source }: TappletProps) => {
     }, [handleMessage, tappletOrigin]);
 
     return (
-        <TappletContainer>
+        <TappletContainer $lite={lite}>
             <iframe
                 src={source}
                 width="100%"

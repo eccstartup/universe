@@ -10,20 +10,37 @@ export const DashboardContentContainer = styled(m.div)<{ $tapplet?: boolean }>`
     pointer-events: ${({ $tapplet }) => ($tapplet ? 'auto' : 'none')};
 `;
 
-export const LiteTappletClose = styled.button`
+export const LITE_TAPPLET_BAR_HEIGHT = 52;
+
+export const LiteTappletBar = styled.header`
     position: fixed;
-    top: 10px;
-    right: 10px;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: ${LITE_TAPPLET_BAR_HEIGHT}px;
     z-index: 20;
-    width: 38px;
-    height: 38px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    border: 1px solid ${({ theme }) => theme.palette.divider};
+    gap: 8px;
+    padding: 0 10px;
     background: ${({ theme }) => theme.palette.background.paper};
+    border-bottom: 1px solid ${({ theme }) => theme.palette.divider};
+`;
+
+export const LiteTappletBarTitle = styled.div`
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
     color: ${({ theme }) => theme.palette.text.primary};
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
-    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+`;
+
+export const LiteTappletBarSide = styled.div`
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
 `;
