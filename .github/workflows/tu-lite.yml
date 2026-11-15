@@ -28,7 +28,7 @@ jobs:
             args: ''
           - platform: ubuntu-22.04
             artifact: tu-lite-linux
-            args: --bundles deb,appimage
+            args: --bundles deb
     runs-on: ${{ matrix.platform }}
     env:
       TARI_NETWORK: mainnet
