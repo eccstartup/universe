@@ -17,6 +17,7 @@ const initialState: ConfigCore = {
     mmproxy_use_monero_failover: false,
     pre_release: false,
     remote_base_node_address: '',
+    custom_remote_node_addresses: [],
     should_auto_launch: false,
     use_tor: false,
     scheduler_events: null,

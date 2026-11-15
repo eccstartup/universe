@@ -1,7 +1,10 @@
+import { IoClose } from 'react-icons/io5';
+
 import { useMiningStatesSync } from '@app/hooks/mining/useMiningStatesSync.ts';
 import DisconnectWrapper from '../Reconnect/DisconnectWrapper.tsx';
-import { DashboardContentContainer } from './styles';
+import { DashboardContentContainer, LiteTappletClose } from './styles';
 import { useAirdropStore, useUIStore } from '@app/store';
+import { setShowTapplet } from '@app/store/actions/uiStoreActions.ts';
 import { useTappletsStore } from '@app/store/useTappletsStore';
 import { Tapplet } from '@app/components/tapplets/Tapplet.tsx';
 import MiningView from './MiningView/MiningView.tsx';
@@ -40,6 +43,16 @@ export default function Dashboard() {
             {connectionStatus !== 'connected' && !orphanChainUiDisabled ? <DisconnectWrapper /> : null}
             {mainMarkup}
             {tappletMarkup}
+            {IS_TU_LITE && showTapplet ? (
+                <LiteTappletClose
+                    type="button"
+                    aria-label="Close"
+                    onClick={() => setShowTapplet(false)}
+                    data-testid="lite-tapplet-close"
+                >
+                    <IoClose size={20} />
+                </LiteTappletClose>
+            ) : null}
         </DashboardContentContainer>
     );
 }

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@app/components/elements/Typography.tsx';
+import { IS_TU_LITE } from '@app/config/variant.ts';
 
 import { SettingsGroupWrapper } from '@app/containers/floating/Settings/components/SettingsGroup.styles';
 
@@ -14,11 +15,16 @@ import { CardGrid, InfoCard, InfoContent, InfoLabel, TitleCodeBlock } from './st
 export default function AppVersions() {
     const { t } = useTranslation(['common', 'settings'], { useSuspense: false });
     const appsInfo = useAppStateStore((state) => state.applications_versions);
+    const visibleApps = appsInfo
+        ? Object.entries(appsInfo).filter(
+              ([appName]) => !IS_TU_LITE || appName === 'tari_universe' || appName === 'bridge'
+          )
+        : null;
 
-    const appMarkup = appsInfo ? (
+    const appMarkup = visibleApps ? (
         <Stack>
             <CardGrid>
-                {Object.entries(appsInfo).map(([appName, { version, port }]) => {
+                {visibleApps.map(([appName, { version, port }]) => {
                     return (
                         <InfoCard key={`${appName}-${version}`}>
                             <TitleCodeBlock>{appName}</TitleCodeBlock>

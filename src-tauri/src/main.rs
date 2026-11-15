@@ -561,6 +561,8 @@ fn main() {
             commands::set_node_type,
             commands::set_remote_base_node_address,
             commands::validate_remote_base_node_address,
+            commands::add_custom_remote_node_address,
+            commands::remove_custom_remote_node_address,
             commands::set_allow_notifications,
             commands::launch_builtin_tapplet,
             commands::get_bridge_envs,

@@ -2,6 +2,7 @@ import { Activity } from 'react';
 import { useNodeStore } from '@app/store/useNodeStore.ts';
 import { LocalNodeSync } from '@app/components/sync/LocalNodeSync.tsx';
 import NodeTypeConfiguration from './NodeTypeConfiguration.tsx';
+import LiteNodeConfiguration from './LiteNodeConfiguration.tsx';
 import NodeDataLocationSettings from './NodeDataLocation.tsx';
 import Network from './Network.tsx';
 import Peers from './Peers.tsx';
@@ -22,7 +23,7 @@ export const ConnectionsSettings = () => {
     return (
         <>
             {nonRemoteMarkup}
-            {!IS_TU_LITE && <NodeTypeConfiguration />}
+            {IS_TU_LITE ? <LiteNodeConfiguration /> : <NodeTypeConfiguration />}
             <Node />
             <Network />
             <Peers />

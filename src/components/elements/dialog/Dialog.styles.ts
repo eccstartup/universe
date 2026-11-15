@@ -19,6 +19,13 @@ export const ContentWrapper = styled.div<ContentWrapperStyleProps>`
     max-height: 90%;
     display: flex;
 
+    @media (max-width: 700px) {
+        width: 100vw;
+        height: 100vh;
+        max-height: none;
+        border-radius: 0;
+    }
+
     ${({ theme, $variant }) => {
         switch ($variant) {
             case 'transparent': {

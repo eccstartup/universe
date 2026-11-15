@@ -2,6 +2,7 @@ import { Background, DashboardContainer, DashboardContent } from '@app/theme/sty
 import SidebarNavigation from '@app/containers/navigation/SidebarNavigation.tsx';
 import { Dashboard } from './Dashboard';
 import { useConfigUIStore } from '@app/store';
+import { IS_TU_LITE } from '@app/config/variant.ts';
 
 export default function MainView() {
     const visualMode = useConfigUIStore((s) => s.visual_mode);
@@ -10,7 +11,7 @@ export default function MainView() {
         <DashboardContainer>
             {!visualMode && <Background />}
             <DashboardContent>
-                <SidebarNavigation />
+                {!IS_TU_LITE && <SidebarNavigation />}
                 <Dashboard />
             </DashboardContent>
         </DashboardContainer>

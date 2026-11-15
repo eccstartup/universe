@@ -49,6 +49,12 @@ export const DigitInput = styled.input<{ $isInvalid?: boolean }>`
     font-weight: 500;
     text-align: center;
 
+    @media (max-width: 420px) {
+        min-width: 0;
+        height: 84px;
+        font-size: 38px;
+    }
+
     ${({ $isInvalid }) =>
         $isInvalid &&
         css`

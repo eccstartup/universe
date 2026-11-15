@@ -19,6 +19,7 @@ export interface ConfigCore {
     node_type?: NodeType;
     pre_release: boolean;
     remote_base_node_address: string;
+    custom_remote_node_addresses?: string[];
     scheduler_events?: Record<string, SchedulerEvent> | null;
     should_auto_launch: boolean;
     show_window_on_startup: boolean;

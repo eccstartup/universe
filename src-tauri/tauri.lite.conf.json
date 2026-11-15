@@ -22,10 +22,10 @@
                 "visible": false,
                 "center": true,
                 "useHttpsScheme": true,
-                "width": 1280,
-                "height": 760,
-                "minWidth": 1152,
-                "minHeight": 684
+                "width": 430,
+                "height": 850,
+                "minWidth": 380,
+                "minHeight": 620
             }
         ]
     },

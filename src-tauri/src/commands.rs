@@ -348,18 +348,32 @@ pub async fn get_applications_versions(
         .expect("Could not get grpc_address");
 
     let tari_universe_version = app.package_info().version.clone();
-    let xmrig_version = binary_resolver.get_binary_version(Binaries::Xmrig).await;
-
-    let minotari_node_version = binary_resolver
-        .get_binary_version(Binaries::MinotariNode)
-        .await;
-    let mm_proxy_version = binary_resolver
-        .get_binary_version(Binaries::MergeMiningProxy)
-        .await;
-    let lolminer_version = binary_resolver.get_binary_version(Binaries::LolMiner).await;
-    let tariminer_version = binary_resolver
-        .get_binary_version(Binaries::TariMiner)
-        .await;
+    // TU Lite ships without the mining stack, so it must not even ask the resolver for
+    // versions it will never download.
+    let (xmrig_version, minotari_node_version, mm_proxy_version, lolminer_version, tariminer_version) =
+        if crate::variant::TU_LITE {
+            (
+                String::new(),
+                String::new(),
+                String::new(),
+                String::new(),
+                String::new(),
+            )
+        } else {
+            (
+                binary_resolver.get_binary_version(Binaries::Xmrig).await,
+                binary_resolver
+                    .get_binary_version(Binaries::MinotariNode)
+                    .await,
+                binary_resolver
+                    .get_binary_version(Binaries::MergeMiningProxy)
+                    .await,
+                binary_resolver.get_binary_version(Binaries::LolMiner).await,
+                binary_resolver
+                    .get_binary_version(Binaries::TariMiner)
+                    .await,
+            )
+        };
     let bridge_version = binary_resolver
         .get_binary_version(Binaries::BridgeTapplet)
         .await;
@@ -2295,6 +2309,69 @@ pub async fn set_remote_base_node_address(address: String) -> Result<String, Inv
     }
 
     Ok(resolved)
+}
+
+/// TU Lite lets the user keep a short list of their own L1 nodes. The active
+/// endpoint remains `remote_base_node_address`; this list is only the saved
+/// alternatives shown in the connections settings.
+const MAX_CUSTOM_REMOTE_NODE_ADDRESSES: usize = 20;
+
+#[tauri::command]
+pub async fn add_custom_remote_node_address(address: String) -> Result<Vec<String>, InvokeError> {
+    let trimmed = address.trim();
+    if trimmed.is_empty() {
+        return Err(InvokeError::from_anyhow(anyhow::anyhow!(
+            "an address is required"
+        )));
+    }
+    let canonical =
+        canonicalise_remote_base_node_address(trimmed).map_err(InvokeError::from_anyhow)?;
+    let mut addresses = ConfigCore::content()
+        .await
+        .custom_remote_node_addresses()
+        .clone();
+    if addresses.iter().any(|saved| saved == &canonical) {
+        return Err(InvokeError::from_anyhow(anyhow::anyhow!(
+            "this node is already saved"
+        )));
+    }
+    if addresses.len() >= MAX_CUSTOM_REMOTE_NODE_ADDRESSES {
+        return Err(InvokeError::from_anyhow(anyhow::anyhow!(
+            "at most {MAX_CUSTOM_REMOTE_NODE_ADDRESSES} custom nodes can be saved"
+        )));
+    }
+    addresses.push(canonical);
+    ConfigCore::update_field(
+        ConfigCoreContent::set_custom_remote_node_addresses,
+        addresses.clone(),
+    )
+    .await
+    .map_err(InvokeError::from_anyhow)?;
+    Ok(addresses)
+}
+
+#[tauri::command]
+pub async fn remove_custom_remote_node_address(address: String) -> Result<Vec<String>, InvokeError> {
+    let canonical =
+        canonicalise_remote_base_node_address(address.trim()).map_err(InvokeError::from_anyhow)?;
+    let active = ConfigCore::content().await.remote_base_node_address().clone();
+    if canonical == active {
+        return Err(InvokeError::from_anyhow(anyhow::anyhow!(
+            "switch to another node before removing the node in use"
+        )));
+    }
+    let mut addresses = ConfigCore::content()
+        .await
+        .custom_remote_node_addresses()
+        .clone();
+    addresses.retain(|saved| saved != &canonical);
+    ConfigCore::update_field(
+        ConfigCoreContent::set_custom_remote_node_addresses,
+        addresses.clone(),
+    )
+    .await
+    .map_err(InvokeError::from_anyhow)?;
+    Ok(addresses)
 }
 
 #[tauri::command]

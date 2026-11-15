@@ -4,11 +4,16 @@ import { Typography } from '@app/components/elements/Typography.tsx';
 export const Wrapper = styled.div`
     display: flex;
     width: clamp(610px, 46vw, 710px);
+    max-width: 100%;
     flex-direction: column;
     padding: 6px;
 
     @media (max-height: 730px) {
         padding: 18px;
+    }
+    @media (max-width: 700px) {
+        width: 100%;
+        padding: 4px;
     }
 `;
 

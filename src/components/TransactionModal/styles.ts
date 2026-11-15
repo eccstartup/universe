@@ -3,13 +3,16 @@ import styled from 'styled-components';
 export const BoxWrapper = styled.div`
     width: 100%;
     height: 100%;
-    max-width: clamp(480px, 48vw, 680px);
+    max-width: min(100%, clamp(480px, 48vw, 680px));
     display: flex;
     flex-direction: column;
     gap: 8px;
     padding: 0 10px 10px 10px;
     position: relative;
     overflow-y: auto;
+    @media (max-width: 700px) {
+        padding: 0 4px 8px;
+    }
 `;
 
 export const TopButton = styled.button`

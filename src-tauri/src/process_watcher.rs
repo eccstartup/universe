@@ -121,11 +121,16 @@ impl<TAdapter: ProcessAdapter> ProcessWatcher<TAdapter> {
             self.stop().await?;
         }
         info!(target: LOG_TARGET_APP_LOGIC, "Starting process watcher for {name}");
-        let binary_path = BinaryResolver::current().get_binary_path(binary).await?;
-        // Fail here, before the watcher task is spawned, so the caller sees the error.
-        ensure_binary_permissions(&name, &binary_path).await?;
-        self.kill_previous_instances(base_path.clone(), &binary_path)
-            .await?;
+        let binary_path = if self.adapter.needs_binary() {
+            let binary_path = BinaryResolver::current().get_binary_path(binary).await?;
+            // Fail here, before the watcher task is spawned, so the caller sees the error.
+            ensure_binary_permissions(&name, &binary_path).await?;
+            self.kill_previous_instances(base_path.clone(), &binary_path)
+                .await?;
+            binary_path
+        } else {
+            PathBuf::new()
+        };
 
         self.internal_shutdown = Shutdown::new();
         let mut inner_shutdown = self.internal_shutdown.to_signal();

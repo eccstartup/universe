@@ -11,6 +11,12 @@ export const Container = styled.div`
     @media (min-width: 1200px) {
         height: 80vh;
     }
+    @media (max-width: 700px) {
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+        flex-direction: column;
+    }
 `;
 
 export const HeaderContainer = styled.div`
@@ -21,6 +27,9 @@ export const HeaderContainer = styled.div`
     align-items: center;
     padding: 30px;
     text-transform: capitalize;
+    @media (max-width: 700px) {
+        padding: 16px;
+    }
 `;
 
 export const EndContainer = styled.div`
@@ -36,6 +45,11 @@ export const ContentContainer = styled.div`
     flex-direction: column;
     position: relative;
     overflow: hidden;
+    flex: 1;
+    min-height: 0;
+    @media (max-width: 700px) {
+        max-width: none;
+    }
 `;
 
 export const SectionWrapper = styled.div`
@@ -44,4 +58,7 @@ export const SectionWrapper = styled.div`
     flex-direction: column;
     padding: 0 30px 20px;
     overflow-y: auto;
+    @media (max-width: 700px) {
+        padding: 0 16px 16px;
+    }
 `;

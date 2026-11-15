@@ -205,6 +205,10 @@ impl ProcessAdapter for RemoteNodeAdapter {
         "remote_minotari_node"
     }
 
+    fn needs_binary(&self) -> bool {
+        false
+    }
+
     fn pid_file_name(&self) -> &str {
         "remote_node_pid"
     }

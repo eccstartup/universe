@@ -126,6 +126,12 @@ pub(crate) trait ProcessAdapter {
 
     fn pid_file_name(&self) -> &str;
 
+    /// Adapters that talk to an external service (for example the remote node) have no
+    /// binary to resolve, check or kill before starting.
+    fn needs_binary(&self) -> bool {
+        true
+    }
+
     #[allow(dead_code)]
     fn pid_file_exisits(&self, base_folder: PathBuf) -> bool {
         std::path::Path::new(&base_folder)

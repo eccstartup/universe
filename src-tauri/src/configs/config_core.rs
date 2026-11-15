@@ -87,6 +87,10 @@ pub struct ConfigCoreContent {
     last_changelog_version: Version,
     airdrop_tokens: Option<AirdropTokens>,
     remote_base_node_address: String,
+    /// L1 nodes the user saved in TU Lite. `remote_base_node_address` stays the
+    /// active endpoint; this list only keeps the alternatives so switching does
+    /// not require retyping them.
+    custom_remote_node_addresses: Vec<String>,
     node_type: NodeType,
     exchange_id: String,
     scheduler_events: HashMap<String, ScheduledEventInfo>,
@@ -299,6 +303,7 @@ impl Default for ConfigCoreContent {
             last_changelog_version: Version::new(0, 0, 0),
             airdrop_tokens: None,
             remote_base_node_address,
+            custom_remote_node_addresses: Vec::new(),
             node_type: if network.is_solo_network() {
                 NodeType::Local
             } else {

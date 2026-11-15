@@ -14,6 +14,17 @@ export const Container = styled.div`
     @media (max-width: 1200px) {
         width: 220px;
     }
+    @media (max-width: 700px) {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 8px;
+        padding: 10px 12px;
+        overflow-x: auto;
+        flex-shrink: 0;
+    }
 `;
 
 export const ButtonContainer = styled.div`
@@ -22,6 +33,12 @@ export const ButtonContainer = styled.div`
     align-items: flex-end;
     width: 100%;
     gap: 10px;
+    @media (max-width: 700px) {
+        flex-direction: row;
+        align-items: center;
+        width: max-content;
+        gap: 8px;
+    }
 `;
 
 export const LinkContainer = styled.div`
@@ -30,12 +47,19 @@ export const LinkContainer = styled.div`
     align-items: flex-end;
     width: 100%;
     gap: 6px;
+    @media (max-width: 700px) {
+        display: none;
+    }
 `;
 
 export const SectionButton = styled(Button)`
     display: flex;
     text-transform: capitalize;
     cursor: pointer;
+    @media (max-width: 700px) {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
 `;
 
 export const TermsBtn = styled.button`

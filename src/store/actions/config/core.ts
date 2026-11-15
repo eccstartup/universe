@@ -107,6 +107,18 @@ export const setRemoteBaseNodeAddress = async (address: string) => {
         throw e;
     }
 };
+export const addCustomRemoteNodeAddress = async (address: string) => {
+    const addresses = await invoke<string[]>('add_custom_remote_node_address', { address });
+    store.setState((c) => ({ ...c, custom_remote_node_addresses: addresses }));
+    return addresses;
+};
+
+export const removeCustomRemoteNodeAddress = async (address: string) => {
+    const addresses = await invoke<string[]>('remove_custom_remote_node_address', { address });
+    store.setState((c) => ({ ...c, custom_remote_node_addresses: addresses }));
+    return addresses;
+};
+
 // Pessimistic like setRemoteBaseNodeAddress: the store takes the URL the backend
 // resolved (canonicalised, or the network default for a blank input).
 export const setOotleIndexerUrl = async (url: string) => {
