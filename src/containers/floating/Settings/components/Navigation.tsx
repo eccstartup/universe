@@ -7,6 +7,7 @@ import { ButtonContainer, Container, LinkContainer, SectionButton, TermsBtn } fr
 import { open } from '@tauri-apps/plugin-shell';
 import { useHasL2Access } from '@app/hooks/wallet/useHasL2Access.ts';
 import { useAirdropStore } from '@app/store/useAirdropStore.ts';
+import { IS_TU_LITE } from '@app/config/variant.ts';
 interface SettingsNavigationProps {
     activeSection: SettingsType;
     onChangeActiveSection: (section: SettingsType) => void;
@@ -24,7 +25,10 @@ export default function SettingsNavigation({ activeSection, onChangeActiveSectio
         <Container>
             <ButtonContainer>
                 {SETTINGS_TYPES.filter(
-                    (type) => (type !== 'l2' || l2Supported) && (type !== 'airdrop' || Boolean(userDetails))
+                    (type) =>
+                        (type !== 'l2' || l2Supported) &&
+                        (type !== 'airdrop' || Boolean(userDetails)) &&
+                        (!IS_TU_LITE || (type !== 'mining' && type !== 'pools' && type !== 'mcp'))
                 ).map((type: SettingsType) => {
                     const isActiveSection = activeSection === type;
                     const name = t(`tabs.${type}`);

@@ -13,14 +13,15 @@ import VisualMode from '@app/containers/main/Dashboard/components/VisualMode.tsx
 
 import AirdropNotificationsSettings from './AirdropNotificationSettings.tsx';
 import { TaskTrayModeSettings } from './TaskTrayModeSettings.tsx';
+import { IS_TU_LITE } from '@app/config/variant.ts';
 
 export const GeneralSettings = () => {
     return (
         <>
             <StartApplicationOnBootSettings />
             <ShowWindowOnStartupSettings />
-            <AutoUpdate />
-            <PreReleaseSettings />
+            {!IS_TU_LITE && <AutoUpdate />}
+            {!IS_TU_LITE && <PreReleaseSettings />}
             <TaskTrayModeSettings />
             <AirdropPermissionSettings />
             <AirdropNotificationsSettings />

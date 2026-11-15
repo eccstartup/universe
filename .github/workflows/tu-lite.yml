@@ -1,0 +1,133 @@
+name: TU Lite
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'tu-lite-v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: TU Lite - ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            artifact: tu-lite-macos-universal
+            args: --target universal-apple-darwin
+          - platform: windows-latest
+            artifact: tu-lite-windows
+            args: ''
+          - platform: ubuntu-22.04
+            artifact: tu-lite-linux
+            args: --bundles deb,appimage
+    runs-on: ${{ matrix.platform }}
+    env:
+      TARI_NETWORK: mainnet
+      TARI_TARGET_NETWORK: mainnet
+      VITE_TU_LITE: 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+          cache: 'pnpm'
+
+      - name: Rust Setup
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Cache Cargo files and outputs
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+          shared-key: tu-lite
+
+      - name: Install Dependencies - Linux
+        if: startsWith(runner.os,'Linux')
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends --assume-yes \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libprotobuf-dev \
+            protobuf-compiler \
+            appstream \
+            opencl-headers \
+            ocl-icd-opencl-dev
+
+      - name: Install Dependencies - macOS
+        if: startsWith(runner.os,'macOS')
+        run: |
+          brew install zip coreutils automake protobuf libtool
+          rustup target add x86_64-apple-darwin
+          rustup target add aarch64-apple-darwin
+          rustup toolchain install stable-x86_64-apple-darwin --force-non-host
+          rustup toolchain install stable-aarch64-apple-darwin --force-non-host
+
+      - name: Install Dependencies - Windows
+        if: startsWith(runner.os,'Windows')
+        run: |
+          vcpkg.exe install sqlite3:x64-windows zlib:x64-windows
+          vcpkg.exe --triplet=x64-windows install opencl
+          choco upgrade protoc -y
+
+      - name: Set environment variables - Windows
+        if: startsWith(runner.os,'Windows')
+        shell: bash
+        run: |
+          echo "SQLITE3_LIB_DIR=C:\vcpkg\installed\x64-windows\lib" >> $GITHUB_ENV
+          echo "LIB=C:\vcpkg\installed\x64-windows\lib" >> $GITHUB_ENV
+
+      - name: Set ARCH for AppImage - Linux
+        if: startsWith(runner.os,'Linux') && contains(matrix.args, 'appimage')
+        run: echo "ARCH=$(uname -m)" >> $GITHUB_ENV
+
+      - name: Install Dependencies - Node
+        run: pnpm install --frozen-lockfile
+
+      - name: Prebuild universal process-wrapper - macOS
+        if: matrix.platform == 'macos-latest'
+        shell: bash
+        run: |
+          cargo build --release --manifest-path process-wrapper/Cargo.toml --target aarch64-apple-darwin
+          cargo build --release --manifest-path process-wrapper/Cargo.toml --target x86_64-apple-darwin
+          mkdir -p target/universal-apple-darwin/release
+          lipo -create \
+            target/aarch64-apple-darwin/release/process-wrapper \
+            target/x86_64-apple-darwin/release/process-wrapper \
+            -output target/universal-apple-darwin/release/process-wrapper
+          chmod +x target/universal-apple-darwin/release/process-wrapper
+          mkdir -p src-tauri/binaries
+          cp target/universal-apple-darwin/release/process-wrapper src-tauri/binaries/process-wrapper-universal-apple-darwin
+
+      - name: Build TU Lite
+        run: pnpm tauri:lite build ${{ matrix.args }}
+
+      - name: Upload bundles
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          if-no-files-found: warn
+          path: |
+            src-tauri/target/**/release/bundle/**/*.dmg
+            src-tauri/target/**/release/bundle/**/*.app.tar.gz
+            src-tauri/target/**/release/bundle/**/*.msi
+            src-tauri/target/**/release/bundle/**/*.exe
+            src-tauri/target/**/release/bundle/**/*.deb
+            src-tauri/target/**/release/bundle/**/*.AppImage

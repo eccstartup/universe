@@ -9,6 +9,7 @@ import MineButton from './buttons/MineButton.tsx';
 import BridgeButton from './buttons/BridgeButton.tsx';
 import L2Button from './buttons/L2Button.tsx';
 import FailedModuleButton from '@app/containers/navigation/Sidebars/buttons/FailedModuleButton.tsx';
+import { IS_TU_LITE } from '@app/config/variant.ts';
 
 export default function SidebarMini() {
     const isStandardWalletUI = useConfigUIStore((s) => s.wallet_ui_mode === WalletUIMode.Standard);
@@ -22,8 +23,8 @@ export default function SidebarMini() {
                 </LogoWrapper>
             </GridTop>
             <GridCenter>
-                <MineButton />
-                <FailedModuleButton />
+                {!IS_TU_LITE && <MineButton />}
+                {!IS_TU_LITE && <FailedModuleButton />}
                 {isStandardWalletUI && <BridgeButton />}
                 {showL2 && <L2Button />}
             </GridCenter>

@@ -1499,6 +1499,9 @@ pub async fn set_airdrop_tokens(airdrop_tokens: Option<AirdropTokens>) -> Result
 
 #[tauri::command]
 pub async fn start_cpu_mining() -> Result<(), String> {
+    if crate::variant::TU_LITE {
+        return Err("Mining is not available in TU Lite".to_string());
+    }
     let timer = Instant::now();
 
     CpuManager::write()
@@ -1515,6 +1518,9 @@ pub async fn start_cpu_mining() -> Result<(), String> {
 #[allow(clippy::too_many_lines)]
 #[tauri::command]
 pub async fn start_gpu_mining() -> Result<(), String> {
+    if crate::variant::TU_LITE {
+        return Err("Mining is not available in TU Lite".to_string());
+    }
     let timer = Instant::now();
 
     GpuManager::write()
@@ -2103,6 +2109,11 @@ pub async fn set_node_type(
     state: tauri::State<'_, UniverseAppState>,
     app_handle: tauri::AppHandle,
 ) -> Result<(), InvokeError> {
+    // TU Lite is remote-node only.
+    if crate::variant::TU_LITE {
+        info!(target: LOG_TARGET_APP_LOGIC, "Ignoring node type change in TU Lite; staying on the remote node");
+        return Ok(());
+    }
     // map LocalAfterRemote or unknown value to Local
     if node_type != NodeType::Local
         && node_type != NodeType::RemoteUntilLocal

@@ -27,7 +27,7 @@ use log::{error, info};
 
 use tauri::{
     AppHandle, Manager, WebviewWindow, Wry,
-    menu::{Menu, MenuItem, PredefinedMenuItem},
+    menu::{IsMenuItem, Menu, MenuItem, PredefinedMenuItem},
     tray::TrayIcon,
 };
 use tokio::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard, mpsc};
@@ -42,6 +42,7 @@ use crate::{
     mining::{cpu::manager::CpuManager, gpu::manager::GpuManager},
     shutdown_manager::ShutdownManager,
     tasks_tracker::TasksTrackers,
+    variant::TU_LITE,
     utils::{
         formatting_utils::{format_currency, format_hashrate},
         platform_utils::{CurrentOperatingSystem, PlatformUtils},
@@ -141,9 +142,13 @@ pub enum SystemTrayActionItem {
 impl Display for SystemTrayActionItem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            SystemTrayActionItem::OpenTariUniverse => write!(f, "Open Tari Universe"),
+            SystemTrayActionItem::OpenTariUniverse => {
+                write!(f, "Open {}", if TU_LITE { "TU Lite" } else { "Tari Universe" })
+            }
             SystemTrayActionItem::Settings => write!(f, "Settings"),
-            SystemTrayActionItem::Close => write!(f, "Quit Tari Universe"),
+            SystemTrayActionItem::Close => {
+                write!(f, "Quit {}", if TU_LITE { "TU Lite" } else { "Tari Universe" })
+            }
             SystemTrayActionItem::ToggleMining { is_mining } => {
                 if *is_mining {
                     write!(f, "Pause Mining")
@@ -433,29 +438,30 @@ impl SystemTrayManager {
         let toggle_mining =
             self.initialize_action_item(SystemTrayActionItem::ToggleMining { is_mining: false });
 
-        let menu = Menu::with_items(
-            &app_handle,
-            &[
-                #[cfg(target_os = "macos")]
-                &about,
-                #[cfg(target_os = "macos")]
-                &about_separator,
-                &open_tari_universe,
-                &toggle_mining,
-                &top_action_separator,
-                &cpu_hashrate,
-                &gpu_hashrate,
-                &cpu_mining_state,
-                &gpu_mining_state,
-                &power,
-                &rewards_separator,
-                &pool_pending_rewards,
-                &pool_share_count,
-                &bottom_action_separator,
-                &settings,
-                &quit,
-            ],
-        )?;
+        let mut items: Vec<&dyn IsMenuItem<Wry>> = Vec::new();
+        #[cfg(target_os = "macos")]
+        {
+            items.push(&about);
+            items.push(&about_separator);
+        }
+        items.push(&open_tari_universe);
+        if !TU_LITE {
+            items.push(&toggle_mining);
+            items.push(&top_action_separator);
+            items.push(&cpu_hashrate);
+            items.push(&gpu_hashrate);
+            items.push(&cpu_mining_state);
+            items.push(&gpu_mining_state);
+            items.push(&power);
+            items.push(&rewards_separator);
+            items.push(&pool_pending_rewards);
+            items.push(&pool_share_count);
+        }
+        items.push(&bottom_action_separator);
+        items.push(&settings);
+        items.push(&quit);
+
+        let menu = Menu::with_items(&app_handle, &items)?;
         Ok(menu)
     }
 

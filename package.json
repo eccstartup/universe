@@ -6,7 +6,10 @@
     "packageManager": "pnpm@11.9.0",
     "scripts": {
         "dev": "vite dev",
+        "dev:lite": "vite --mode tu-lite",
         "build": "tsc && vite build",
+        "build:lite": "tsc && vite build --mode tu-lite",
+        "tauri:lite": "node ./scripts/tauri-lite.js",
         "preview": "vite preview",
         "tauri": "node ./scripts/tauri-wrapper.js",
         "lint": "eslint src/ && node ./scripts/check-isolation-allowlist.mjs && knip && tsc",

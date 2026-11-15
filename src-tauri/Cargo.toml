@@ -6,6 +6,8 @@ name = "tari-universe"
 repository = "https://github.com/tari-project/universe"
 
 [features]
+# Wallet-only variant: no mining, remote node, mainnet.
+tu-lite = []
 custom-protocol = [
   "tauri/custom-protocol",
 ] # DO NOT REMOVE!! This feature is used for production builds or when a dev server is not specified.

@@ -1,0 +1,37 @@
+{
+    "productName": "TU Lite",
+    "mainBinaryName": "TU Lite",
+    "identifier": "com.tari.universe.lite",
+    "build": {
+        "beforeDevCommand": "pnpm run dev:lite",
+        "beforeBuildCommand": "pnpm run build:lite"
+    },
+    "bundle": {
+        "createUpdaterArtifacts": false,
+        "shortDescription": "TU Lite is a wallet-only Tari app.",
+        "longDescription": "TU Lite keeps the Tari wallet without mining, and always connects to a remote mainnet node."
+    },
+    "app": {
+        "windows": [
+            {
+                "title": "TU Lite | Mainnet",
+                "label": "main",
+                "resizable": true,
+                "fullscreen": false,
+                "transparent": false,
+                "visible": false,
+                "center": true,
+                "useHttpsScheme": true,
+                "width": 1280,
+                "height": 760,
+                "minWidth": 1152,
+                "minHeight": 684
+            }
+        ]
+    },
+    "plugins": {
+        "updater": {
+            "endpoints": ["https://tu-lite.invalid/updater.json"]
+        }
+    }
+}

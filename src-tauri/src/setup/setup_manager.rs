@@ -43,6 +43,7 @@ use crate::mining::pools::PoolManagerInterfaceTrait;
 use crate::mining::pools::cpu_pool_manager::CpuPoolManager;
 use crate::mining::pools::gpu_pool_manager::GpuPoolManager;
 use crate::network_utils::NetworkExt;
+use crate::node::node_manager::NodeType;
 use crate::progress_trackers::progress_plans::SetupStep;
 use crate::setup::utils::pre_setup::{check_data_import, clear_data};
 use crate::setup::{
@@ -53,6 +54,7 @@ use crate::setup::{
 use crate::systemtray_manager::SystemTrayManager;
 use crate::utils::battery_status::BatteryStatus;
 use crate::utils::platform_utils::PlatformUtils;
+use crate::variant::TU_LITE;
 use crate::{
     APPLICATION_FOLDER_ID, UniverseAppState,
     configs::{
@@ -134,13 +136,14 @@ impl Display for SetupPhase {
 
 impl SetupPhase {
     pub fn all() -> Vec<SetupPhase> {
-        vec![
-            Self::Core,
-            Self::CpuMining,
-            Self::GpuMining,
-            Self::Node,
-            Self::Wallet,
-        ]
+        let mut phases = vec![Self::Core];
+        if !TU_LITE {
+            phases.push(Self::CpuMining);
+            phases.push(Self::GpuMining);
+        }
+        phases.push(Self::Node);
+        phases.push(Self::Wallet);
+        phases
     }
     pub fn get_i18n_title_key(&self) -> String {
         match self {
@@ -335,14 +338,16 @@ impl SetupManager {
         harden_app_config_permissions(&app_config_root);
 
         // Initialize MCP server with node status receiver for chain tools
-        crate::mcp::server::McpServerManager::initialize(state.node_status_watch_rx.clone()).await;
+        if !TU_LITE {
+            crate::mcp::server::McpServerManager::initialize(state.node_status_watch_rx.clone()).await;
 
-        // Auto-start MCP server if enabled with a valid token
-        if *ConfigMcp::content().await.enabled()
-            && ConfigMcp::content().await.bearer_token().is_some()
-            && let Err(e) = crate::mcp::server::McpServerManager::start().await
-        {
-            warn!(target: LOG_TARGET_APP_LOGIC, "Failed to auto-start MCP server: {e}");
+            // Auto-start MCP server if enabled with a valid token
+            if *ConfigMcp::content().await.enabled()
+                && ConfigMcp::content().await.bearer_token().is_some()
+                && let Err(e) = crate::mcp::server::McpServerManager::start().await
+            {
+                warn!(target: LOG_TARGET_APP_LOGIC, "Failed to auto-start MCP server: {e}");
+            }
         }
 
         let _ = check_data_import(app_handle.clone()).await.map_err(|e| {
@@ -358,11 +363,16 @@ impl SetupManager {
             .initialize_tray(&app_handle)
             .await;
 
-        BatteryStatus::start_battery_listener().await;
+        if !TU_LITE {
+            BatteryStatus::start_battery_listener().await;
+        }
 
-        let node_type = ConfigCore::content().await.node_type().clone();
         let network = Network::get_current_or_user_setting_or_default();
-        let node_type = node_type.for_network(network);
+        let node_type = if TU_LITE {
+            NodeType::Remote
+        } else {
+            ConfigCore::content().await.node_type().clone().for_network(network)
+        };
         info!(target: LOG_TARGET_APP_LOGIC, "Retrieved initial node type: {node_type:?}");
         state.node_manager.set_node_type(node_type).await;
         EventsManager::handle_node_type_update(&app_handle).await;
@@ -560,12 +570,14 @@ impl SetupManager {
             EventsEmitter::emit_should_show_exchange_miner_modal().await;
         }
 
-        EventScheduler::instance()
-            .spawn_listener()
-            .await
-            .unwrap_or_else(|e| {
-                error!(target: LOG_TARGET_APP_LOGIC, "Failed to start event scheduler listener: {e}");
-            });
+        if !TU_LITE {
+            EventScheduler::instance()
+                .spawn_listener()
+                .await
+                .unwrap_or_else(|e| {
+                    error!(target: LOG_TARGET_APP_LOGIC, "Failed to start event scheduler listener: {e}");
+                });
+        }
 
         info!(target: LOG_TARGET_APP_LOGIC, "Pre Setup Finished");
     }
@@ -604,14 +616,18 @@ impl SetupManager {
             .await
             .selected_external_tari_address()
             .clone();
+        let mut disabled_phases = Vec::new();
+        if TU_LITE {
+            disabled_phases.push(SetupPhase::CpuMining);
+            disabled_phases.push(SetupPhase::GpuMining);
+        }
         // Seedless Wallet feature
         if external_tari_address.is_some() || is_exchange_miner_build {
             info!(target: LOG_TARGET_APP_LOGIC, "Seedless wallet feature enabled");
             features.add_feature(SetupFeature::SeedlessWallet);
-            EventsEmitter::emit_disabled_phases(vec![SetupPhase::Wallet]).await;
-        } else {
-            EventsEmitter::emit_disabled_phases(vec![]).await;
+            disabled_phases.push(SetupPhase::Wallet);
         }
+        EventsEmitter::emit_disabled_phases(disabled_phases).await;
 
         Ok(())
     }
@@ -776,10 +792,14 @@ impl SetupManager {
                     self.setup_core_phase().await;
                 }
                 SetupPhase::CpuMining => {
-                    self.setup_cpu_mining_phase().await;
+                    if !TU_LITE {
+                        self.setup_cpu_mining_phase().await;
+                    }
                 }
                 SetupPhase::GpuMining => {
-                    self.setup_gpu_mining_phase().await;
+                    if !TU_LITE {
+                        self.setup_gpu_mining_phase().await;
+                    }
                 }
 
                 SetupPhase::Node => {
@@ -893,8 +913,10 @@ impl SetupManager {
         .await;
 
         self.setup_core_phase().await;
-        self.setup_cpu_mining_phase().await;
-        self.setup_gpu_mining_phase().await;
+        if !TU_LITE {
+            self.setup_cpu_mining_phase().await;
+            self.setup_gpu_mining_phase().await;
+        }
         self.setup_node_phase().await;
         self.setup_wallet_phase().await;
     }

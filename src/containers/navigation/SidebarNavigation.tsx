@@ -5,6 +5,7 @@ import Sidebar from './Sidebars/Sidebar.tsx';
 import SidebarL2 from './Sidebars/SidebarL2.tsx';
 import { useHasL2Access } from '@app/hooks/wallet/useHasL2Access.ts';
 import { SidebarNavigationWrapper } from './SidebarNavigation.styles.ts';
+import { IS_TU_LITE } from '@app/config/variant.ts';
 
 export default function SidebarNavigation() {
     const sidebarOpen = useUIStore((s) => s.sidebarOpen);
@@ -12,7 +13,7 @@ export default function SidebarNavigation() {
     const l2Open = useUIStore((s) => s.l2Open);
     const l2Supported = useHasL2Access();
 
-    const showSidebar = sidebarOpen && !showTapplet;
+    const showSidebar = !IS_TU_LITE && sidebarOpen && !showTapplet;
     const showL2 = l2Open && l2Supported && !showTapplet;
 
     return (

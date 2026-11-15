@@ -32,6 +32,7 @@ import XSpaceEventBanner from './XSpaceBanner/XSpaceBanner.tsx';
 import AirdropClaimModal from '../main/Airdrop/AirdropClaim/AirdropClaimModal.tsx';
 import McpTransactionDialog from './mcp/McpTransactionDialog.tsx';
 import SchedulerModal from './scheduler/SchedulerModal.tsx';
+import { IS_TU_LITE } from '@app/config/variant.ts';
 
 const environment = import.meta.env.MODE;
 
@@ -40,18 +41,18 @@ const FloatingElements = () => {
         <FloatingTree>
             {environment === 'development' && <AdminUI />}
 
-            <AutoUpdateDialog />
-            <BatteryAlertDialog />
+            {!IS_TU_LITE && <AutoUpdateDialog />}
+            {!IS_TU_LITE && <BatteryAlertDialog />}
             <ShutdownSelectionDialog />
             <CriticalErrorDialog />
-            <ExternalDependenciesDialog />
-            <LudicrousCofirmationDialog />
-            <ShareRewardModal />
+            {!IS_TU_LITE && <ExternalDependenciesDialog />}
+            {!IS_TU_LITE && <LudicrousCofirmationDialog />}
+            {!IS_TU_LITE && <ShareRewardModal />}
             <ToastStack />
             <CriticalProblemDialog />
             <ReleaseNotesDialog />
             <XSpaceEventBanner />
-            <CustomPowerLevelsDialogContainer />
+            {!IS_TU_LITE && <CustomPowerLevelsDialogContainer />}
             <EXModal />
             <UniversalEXSelectorModal />
             <XCLinkModal />
@@ -68,7 +69,7 @@ const FloatingElements = () => {
             <FailedModuleInitializationDialog />
             <ExitFeedbackSurveyDialog />
             <LongTimeUserFeedbackDialog />
-            <SchedulerModal />
+            {!IS_TU_LITE && <SchedulerModal />}
         </FloatingTree>
     );
 };

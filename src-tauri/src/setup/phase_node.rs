@@ -39,6 +39,7 @@ use crate::{
     },
     setup::setup_manager::SetupPhase,
     tasks_tracker::TasksTrackers,
+    variant::TU_LITE,
     wallet::minotari_wallet::MinotariWalletManager,
 };
 use anyhow::Error;
@@ -173,7 +174,7 @@ impl SetupPhaseImpl for NodeSetupPhase {
         let state = self.app_handle.state::<UniverseAppState>();
         let node_type = state.node_manager.get_node_type().await;
         // Tor is not needed for a remote node
-        let use_tor = app_configuration.use_tor && node_type.is_local();
+        let use_tor = !TU_LITE && app_configuration.use_tor && node_type.is_local();
 
         let binary_resolver = BinaryResolver::current();
         let mut progress_stepper = self.progress_stepper.lock().await;
@@ -199,6 +200,10 @@ impl SetupPhaseImpl for NodeSetupPhase {
 
         progress_stepper
             .complete_step(SetupStep::BinariesNode, || async {
+                // TU Lite always uses a remote node, so the local node binary is never needed.
+                if TU_LITE {
+                    return Ok(());
+                }
                 binary_resolver
                     .initialize_binary(Binaries::MinotariNode, node_binary_progress_tracker)
                     .await
@@ -330,7 +335,7 @@ impl SetupPhaseImpl for NodeSetupPhase {
         let node_type = state.node_manager.get_node_type().await;
         let app_configuration = Self::load_app_configuration().await.unwrap_or_default();
         let use_tor =
-            app_configuration.use_tor && node_type.is_local() && !cfg!(target_os = "macos");
+            !TU_LITE && app_configuration.use_tor && node_type.is_local() && !cfg!(target_os = "macos");
 
         if use_tor {
             let tor_guards = state.tor_manager.get_entry_guards().await;

@@ -391,8 +391,10 @@ impl InternalWallet {
         )
         .await;
 
-        CpuPoolManager::handle_wallet_address_change(self.extract_tari_address()).await;
-        GpuPoolManager::handle_wallet_address_change(self.extract_tari_address()).await;
+        if !crate::variant::TU_LITE {
+            CpuPoolManager::handle_wallet_address_change(self.extract_tari_address()).await;
+            GpuPoolManager::handle_wallet_address_change(self.extract_tari_address()).await;
+        }
 
         log::info!(
             "Wallet with {} address initialized successfully",

@@ -144,6 +144,11 @@ impl UpdatesManager {
         enable_downgrade: bool,
         timeout_duration: Duration,
     ) -> Result<(), anyhow::Error> {
+        // TU Lite is distributed separately from upstream Tari Universe and must not
+        // install upstream (mining) builds.
+        if crate::variant::TU_LITE {
+            return Ok(());
+        }
         let res = tokio::time::timeout(
             timeout_duration,
             self.check_for_update(app.clone(), enable_downgrade),

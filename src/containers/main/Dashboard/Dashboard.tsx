@@ -5,12 +5,17 @@ import { useAirdropStore, useUIStore } from '@app/store';
 import { useTappletsStore } from '@app/store/useTappletsStore';
 import { Tapplet } from '@app/components/tapplets/Tapplet.tsx';
 import MiningView from './MiningView/MiningView.tsx';
+import WalletHome from '../WalletHome/WalletHome.tsx';
 import { FEATURE_FLAGS } from '@app/store/consts.ts';
 import { Activity } from 'react';
+import { IS_TU_LITE } from '@app/config/variant.ts';
+
+function MiningDashboard() {
+    useMiningStatesSync();
+    return <MiningView />;
+}
 
 export default function Dashboard() {
-    useMiningStatesSync();
-
     const showTapplet = useUIStore((s) => s.showTapplet);
     const activeTapplet = useTappletsStore((s) => s.activeTapplet);
 
@@ -27,7 +32,7 @@ export default function Dashboard() {
     );
     const mainMarkup = (
         <Activity mode={!showTapplet ? 'visible' : 'hidden'} key="main">
-            <MiningView />
+            {IS_TU_LITE ? <WalletHome /> : <MiningDashboard />}
         </Activity>
     );
     return (

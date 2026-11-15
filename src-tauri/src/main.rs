@@ -143,6 +143,7 @@ mod tor_control_client;
 mod tor_manager;
 mod updates_manager;
 mod utils;
+mod variant;
 mod wallet;
 mod websocket_events_manager;
 mod websocket_manager;
@@ -167,8 +168,13 @@ const IGNORED_SENTRY_ERRORS: [&str; 4] = [
 // can be wiped between runs.
 #[cfg(feature = "test-mode")]
 const APPLICATION_FOLDER_ID: &str = "com.tari.universe.test";
+// TU Lite keeps its own profile folders and keychain entries so it never mixes
+// with an installed mining build.
+#[cfg(all(feature = "tu-lite", not(feature = "test-mode")))]
+const APPLICATION_FOLDER_ID: &str = "com.tari.universe.lite";
 #[cfg(all(
     not(feature = "test-mode"),
+    not(feature = "tu-lite"),
     not(any(
         feature = "release-ci",
         feature = "release-ci-beta",
@@ -178,18 +184,21 @@ const APPLICATION_FOLDER_ID: &str = "com.tari.universe.test";
 const APPLICATION_FOLDER_ID: &str = "com.tari.universe.alpha";
 #[cfg(all(
     not(feature = "test-mode"),
+    not(feature = "tu-lite"),
     feature = "release-ci",
     feature = "release-ci-beta"
 ))]
 const APPLICATION_FOLDER_ID: &str = "com.tari.universe.other";
 #[cfg(all(
     not(feature = "test-mode"),
+    not(feature = "tu-lite"),
     feature = "release-ci",
     not(feature = "release-ci-beta")
 ))]
 const APPLICATION_FOLDER_ID: &str = "com.tari.universe";
 #[cfg(all(
     not(feature = "test-mode"),
+    not(feature = "tu-lite"),
     feature = "release-ci-beta",
     not(feature = "release-ci")
 ))]
